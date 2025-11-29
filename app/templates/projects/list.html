@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}{% if current_category %}{{ current_category.name }} Projects{% else %}Projects{% endif %} - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="page-header align-left">
+        <h1>{% if search_query %}Search: "{{ search_query }}"{% elif current_category %}{{ current_category.icon }} {{ current_category.name }}{% else %}Projects{% endif %}</h1>
+        <p>{% if search_query %}{{ pagination.total }} result{{ 's' if pagination.total != 1 else '' }} found{% elif current_category %}{{ current_category.description }}{% else %}Discover and support innovative projects{% endif %}</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <form action="{{ url_for('projects.list_projects') }}" method="GET" class="search-form">
+            <div class="search-input-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20">
+                    <path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <input type="text" name="q" placeholder="Search projects..." value="{{ search_query }}" class="search-input">
+                {% if current_category %}
+                <input type="hidden" name="category" value="{{ current_category.slug }}">
+                {% endif %}
+                <input type="hidden" name="status" value="{{ current_status }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+            {% if search_query %}
+            <a href="{{ url_for('projects.list_projects', category=current_category.slug if current_category else '', status=current_status) }}" class="btn btn-outline">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Category Filter -->
+    {% if categories %}
+    <div class="category-filter">
+        <a href="{{ url_for('projects.list_projects', sort=current_sort, status=current_status) }}"
+           class="category-pill {{ 'active' if not current_category }}">
+            All
+        </a>
+        {% for cat in categories %}
+        <a href="{{ url_for('projects.list_projects', sort=current_sort, status=current_status, category=cat.slug) }}"
+           class="category-pill {{ 'active' if current_category and current_category.id == cat.id }}"
+           style="--cat-color: {{ cat.color }}">
+            <span class="category-icon">{{ cat.icon }}</span>
+            {{ cat.name }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Filters -->
+    <div class="filters-bar">
+        <div class="filter-group">
+            <label>Status:</label>
+            <div class="filter-buttons">
+                <a href="{{ url_for('projects.list_projects', sort=current_sort, status='active', category=current_category.slug if current_category else '') }}"
+                   class="filter-btn {{ 'active' if current_status == 'active' }}">Active</a>
+                <a href="{{ url_for('projects.list_projects', sort=current_sort, status='ended', category=current_category.slug if current_category else '') }}"
+                   class="filter-btn {{ 'active' if current_status == 'ended' }}">Ended</a>
+                <a href="{{ url_for('projects.list_projects', sort=current_sort, status='all', category=current_category.slug if current_category else '') }}"
+                   class="filter-btn {{ 'active' if current_status == 'all' }}">All</a>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label>Sort by:</label>
+            <select class="filter-select" id="sortSelect">
+                <option value="newest" {{ 'selected' if current_sort == 'newest' }}>Newest</option>
+                <option value="popular" {{ 'selected' if current_sort == 'popular' }}>Most Raised</option>
+                <option value="ending_soon" {{ 'selected' if current_sort == 'ending_soon' }}>Ending Soon</option>
+                <option value="funded" {{ 'selected' if current_sort == 'funded' }}>% Funded</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Projects Grid -->
+    {% if projects %}
+        <div class="projects-grid">
+            {% for project in projects %}
+                {% include "components/project_card.html" %}
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+            <nav class="pagination">
+                {% if pagination.has_prev %}
+                    <a href="{{ url_for('projects.list_projects', page=pagination.prev_num, sort=current_sort, status=current_status, category=current_category.slug if current_category else '', q=search_query if search_query else '') }}"
+                       class="pagination-link">← Previous</a>
+                {% endif %}
+
+                <div class="pagination-numbers">
+                    {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            <a href="{{ url_for('projects.list_projects', page=page_num, sort=current_sort, status=current_status, category=current_category.slug if current_category else '', q=search_query if search_query else '') }}"
+                               class="pagination-link {{ 'active' if page_num == pagination.page }}">{{ page_num }}</a>
+                        {% else %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if pagination.has_next %}
+                    <a href="{{ url_for('projects.list_projects', page=pagination.next_num, sort=current_sort, status=current_status, category=current_category.slug if current_category else '', q=search_query if search_query else '') }}"
+                       class="pagination-link">Next →</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            {% if search_query %}
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" width="64" height="64">
+                        <path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </div>
+                <h2>No results found</h2>
+                <p>We couldn't find any projects matching "{{ search_query }}"</p>
+                <div class="empty-actions">
+                    <a href="{{ url_for('projects.list_projects', category=current_category.slug if current_category else '', status=current_status) }}" class="btn btn-outline">
+                        Clear Search
+                    </a>
+                    <a href="{{ url_for('projects.list_projects') }}" class="btn btn-primary">
+                        View All Projects
+                    </a>
+                </div>
+            {% elif current_category %}
+                <div class="empty-icon">{{ current_category.icon }}</div>
+                <h2>No {{ current_category.name }} projects</h2>
+                <p>There are no projects in this category yet. Be the first!</p>
+                <div class="empty-actions">
+                    <a href="{{ url_for('projects.list_projects') }}" class="btn btn-outline">
+                        View All Categories
+                    </a>
+                    <a href="{{ url_for('projects.create') }}" class="btn btn-primary">
+                        Create Project
+                    </a>
+                </div>
+            {% else %}
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" width="64" height="64">
+                        <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/>
+                    </svg>
+                </div>
+                <h2>No projects yet</h2>
+                <p>Be the first to create a project and start funding your idea!</p>
+                <a href="{{ url_for('projects.create') }}" class="btn btn-primary">
+                    Create First Project
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('sortSelect').addEventListener('change', function() {
+    const url = new URL(window.location);
+    url.searchParams.set('sort', this.value);
+    window.location = url;
+});
+</script>
+{% endblock %}

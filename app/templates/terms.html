@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Terms of Service - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="content-page legal">
+        <h1>Terms of Service</h1>
+        <p class="last-updated">Last updated: {{ now().strftime('%Y-%m-%d') if now is defined else '2024' }}</p>
+
+        <div class="content-section important-notice">
+            <h2>Important Notice</h2>
+            <p><strong>Please read these terms carefully before using the platform. By using the Solio platform, you confirm that you have read, understood, and agree to these terms.</strong></p>
+        </div>
+
+        <div class="content-section">
+            <h2>1. Introduction and Definitions</h2>
+            <p>Welcome to the Solio platform. These Terms of Service ("Terms") govern the relationship between you ("User") and the Solio platform operator ("Operator", "we", "us").</p>
+            <p>Solio is a crowdfunding platform built on the Solana blockchain that allows users to create fundraisers ("Projects") and receive donations in SOL cryptocurrency.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>2. Eligibility</h2>
+            <ul>
+                <li>You must be at least 18 years old to use the platform</li>
+                <li>You must be legally capable of entering into binding contracts</li>
+                <li>You must not be a resident of a country where cryptocurrency use is prohibited</li>
+                <li>By using the platform, you represent that you meet all of the above conditions</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>3. Registration and Account</h2>
+            <ul>
+                <li>Registration is required to create a project</li>
+                <li>You are responsible for the security of your account and credentials</li>
+                <li>Information provided must be truthful and current</li>
+                <li>Each user may have only one account</li>
+                <li>You are fully responsible for all activities conducted under your account</li>
+                <li>Contact us immediately if you suspect unauthorized use of your account</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>4. Projects and Fundraisers</h2>
+            <ul>
+                <li>Project creators are fully responsible for content and fulfilling their promises</li>
+                <li>Projects must not violate applicable laws or third-party rights</li>
+                <li>Goal amount and end date cannot be changed after the first donation</li>
+                <li>Creators must set up a Solana wallet to receive payouts</li>
+            </ul>
+        </div>
+
+        <div class="content-section important-notice">
+            <h2>5. Prohibited Content and Activities</h2>
+            <p>On the Solio platform, it is <strong>strictly prohibited</strong> to create projects or conduct activities related to:</p>
+            <ul>
+                <li><strong>Weapons and Explosives</strong> - sale, manufacture, or promotion of weapons, ammunition, explosives, or their components</li>
+                <li><strong>Drugs and Controlled Substances</strong> - sale, distribution, or promotion of illegal drugs, psychotropic substances, or equipment for their manufacture</li>
+                <li><strong>Pornography and Sexual Content</strong> - explicit sexual content, erotic services, or materials depicting minors</li>
+                <li><strong>Hate Content</strong> - promotion of violence, discrimination, or hatred against individuals or groups based on race, ethnicity, religion, gender, sexual orientation, or disability</li>
+                <li><strong>Fraudulent Activities</strong> - scams, pyramid schemes, Ponzi schemes</li>
+                <li><strong>Money Laundering</strong> - terrorism financing, money laundering, or other illegal financial activities</li>
+                <li><strong>Illegal Services</strong> - hacking services, sale of stolen data, fake documents</li>
+                <li><strong>Gambling</strong> - illegal gambling or casinos</li>
+                <li><strong>Copyright Infringement</strong> - illegal copying, distribution, or sale of protected content</li>
+                <li><strong>Deceptive Projects</strong> - projects with intentionally false information or unfulfillable promises</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>6. Right to Remove Content</h2>
+            <p>The Operator reserves the right <strong>without prior notice</strong> to:</p>
+            <ul>
+                <li>Remove, ban, or suspend any project that violates these Terms</li>
+                <li>Remove or modify content we consider inappropriate, misleading, or harmful</li>
+                <li>Block or terminate the account of users who repeatedly violate the rules</li>
+                <li>Suspend payouts in case of suspected fraud or illegal activity</li>
+                <li>Cooperate with law enforcement in investigating criminal activity</li>
+            </ul>
+            <p>We will inform you of the reasons for removal unless it compromises platform security or is prohibited by law.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>7. Donations and Payments</h2>
+            <ul>
+                <li><strong>All donations are voluntary and NON-REFUNDABLE</strong></li>
+                <li>By donating through the platform, you express your intention to support a specific project</li>
+                <li>100% of donations go to the platform wallet during the fundraiser</li>
+                <li>After the fundraiser ends, a 2.5% platform fee is deducted</li>
+                <li>97.5% is paid out to the creator at their Solana address</li>
+                <li><strong>Blockchain transactions are irreversible and cannot be undone</strong></li>
+                <li>The platform does not control how creators use the collected funds</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>8. Fees</h2>
+            <p>Solio charges a fee of <strong>2.5%</strong> of the total amount raised. This fee is deducted when paying out funds to the creator.</p>
+            <p>Users also pay Solana network transaction fees, which are not part of the platform fee.</p>
+        </div>
+
+        <div class="content-section important-notice">
+            <h2>9. Limitation of Liability - IMPORTANT</h2>
+            <p><strong>The Solio platform operator is NOT LIABLE for:</strong></p>
+            <ul>
+                <li><strong>Fulfillment of creator promises</strong> - we do not guarantee that creators will fulfill their obligations to donors</li>
+                <li><strong>Cryptocurrency price fluctuations</strong> - the value of SOL may change; we are not responsible for losses caused by exchange rate changes</li>
+                <li><strong>Blockchain technical issues</strong> - outages, delays, or failures of the Solana network</li>
+                <li><strong>Loss of credentials</strong> - forgotten passwords, loss of wallet seed phrase</li>
+                <li><strong>Hacking attacks</strong> - attacks on your wallet or account beyond our control</li>
+                <li><strong>Fraudulent projects</strong> - despite our efforts, fraudulent projects cannot be completely excluded</li>
+                <li><strong>Indirect damages</strong> - lost profits, reputation damage, or other consequential damages</li>
+            </ul>
+            <p><strong>The service is provided "AS IS" without any express or implied warranties.</strong></p>
+        </div>
+
+        <div class="content-section">
+            <h2>10. Cryptocurrency Risks</h2>
+            <p>By using the platform, you acknowledge and accept the following risks:</p>
+            <ul>
+                <li>Cryptocurrencies are highly volatile and their value can fluctuate dramatically</li>
+                <li>Blockchain transactions are irreversible</li>
+                <li>Cryptocurrency regulations may change and affect service availability</li>
+                <li>Technological risks (smart contract bugs, network failures)</li>
+                <li>Loss of access to your wallet means permanent loss of funds</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>11. Privacy</h2>
+            <p>The processing of personal data is governed by our <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>. By using the platform, you consent to the processing of your data in accordance with this policy.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>12. Service and Account Termination</h2>
+            <ul>
+                <li>Solio reserves the right to terminate or suspend a user's account without prior notice in case of violation of these Terms</li>
+                <li>In case of account termination, ongoing projects will be handled individually</li>
+                <li>Funds on the platform wallet will be paid out according to standard rules or returned if possible</li>
+                <li>We may terminate or suspend the entire platform at any time</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>13. Intellectual Property</h2>
+            <ul>
+                <li>Platform content (design, code, logo) is protected by copyright</li>
+                <li>Users retain rights to content they upload to the platform</li>
+                <li>By uploading content, you grant the platform a non-exclusive license to display it</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>14. Changes to Terms</h2>
+            <p>Solio may change these terms at any time. We will notify users of significant changes via email or announcement on the platform.</p>
+            <p>By continuing to use the service after Terms changes, you agree to the new terms. If you do not agree to the new terms, stop using the platform.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>15. Governing Law and Dispute Resolution</h2>
+            <p>These Terms are governed by the laws of the jurisdiction where the platform operates. Any disputes will be resolved by the competent courts.</p>
+            <p>Before filing a lawsuit, we will attempt to resolve the dispute out of court through communication with our support.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>16. Severability</h2>
+            <p>If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions remain in effect.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>17. Contact</h2>
+            <p>For questions about these terms, contact us through:</p>
+            <ul>
+                <li>Email: <a href="mailto:{{ config.SUPPORT_EMAIL }}">{{ config.SUPPORT_EMAIL }}</a></li>
+            </ul>
+        </div>
+
+        <div class="content-section agreement-notice">
+            <p><strong>By using the Solio platform, you confirm that you have read, understood, and agree to these Terms without reservation.</strong></p>
+        </div>
+    </div>
+</div>
+
+<style>
+.important-notice {
+    background: rgba(255, 87, 87, 0.1);
+    border: 1px solid rgba(255, 87, 87, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.important-notice h2 {
+    color: #FF5757;
+}
+
+.agreement-notice {
+    background: rgba(153, 69, 255, 0.1);
+    border: 1px solid rgba(153, 69, 255, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+</style>
+{% endblock %}

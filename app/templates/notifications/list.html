@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="page-header">
+        <h1>Notifications</h1>
+        {% if notifications %}
+        <button class="btn btn-outline btn-sm" id="markAllReadBtn">Mark all as read</button>
+        {% endif %}
+    </div>
+
+    {% if notifications %}
+        <div class="notifications-page-list">
+            {% for notification in notifications %}
+            <div class="notification-item {% if not notification.is_read %}unread{% endif %}"
+                 data-notification-id="{{ notification.id }}">
+                <div class="notification-icon {{ notification.type }}">
+                    {% if notification.type == 'donation' %}
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    {% elif notification.type == 'comment' or notification.type == 'reply' %}
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/>
+                        </svg>
+                    {% elif notification.type == 'milestone' %}
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/>
+                        </svg>
+                    {% elif notification.type == 'payout' %}
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                        </svg>
+                    {% else %}
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                        </svg>
+                    {% endif %}
+                </div>
+                <div class="notification-content">
+                    {% if notification.link %}
+                    <a href="{{ notification.link }}" class="notification-link">
+                        <h4 class="notification-title">{{ notification.title }}</h4>
+                        {% if notification.message %}
+                        <p class="notification-message">{{ notification.message }}</p>
+                        {% endif %}
+                    </a>
+                    {% else %}
+                    <h4 class="notification-title">{{ notification.title }}</h4>
+                    {% if notification.message %}
+                    <p class="notification-message">{{ notification.message }}</p>
+                    {% endif %}
+                    {% endif %}
+                    <span class="notification-time">{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <div class="notification-actions">
+                    {% if not notification.is_read %}
+                    <button class="notification-action mark-read" title="Mark as read" data-id="{{ notification.id }}">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                    </button>
+                    {% endif %}
+                    <button class="notification-action delete-notification" title="Delete" data-id="{{ notification.id }}">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if pagination.pages > 1 %}
+        <div class="pagination">
+            {% if pagination.has_prev %}
+                <a href="{{ url_for('notifications.list_notifications', page=pagination.prev_num) }}" class="pagination-link">Previous</a>
+            {% endif %}
+
+            <span class="pagination-info">Page {{ pagination.page }} of {{ pagination.pages }}</span>
+
+            {% if pagination.has_next %}
+                <a href="{{ url_for('notifications.list_notifications', page=pagination.next_num) }}" class="pagination-link">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48">
+                    <path fill="currentColor" d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                </svg>
+            </div>
+            <h3>No notifications</h3>
+            <p>You're all caught up! We'll let you know when something happens.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Mark single notification as read
+document.querySelectorAll('.mark-read').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const id = btn.dataset.id;
+        const item = btn.closest('.notification-item');
+
+        try {
+            const response = await fetch(`/notifications/api/${id}/read`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+
+            if (response.ok) {
+                item.classList.remove('unread');
+                btn.remove();
+                updateBadge();
+            }
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
+        }
+    });
+});
+
+// Delete notification
+document.querySelectorAll('.delete-notification').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const id = btn.dataset.id;
+        const item = btn.closest('.notification-item');
+
+        try {
+            const response = await fetch(`/notifications/api/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+
+            if (response.ok) {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-20px)';
+                setTimeout(() => item.remove(), 200);
+                updateBadge();
+            }
+        } catch (error) {
+            console.error('Error deleting notification:', error);
+        }
+    });
+});
+
+// Mark all as read
+const markAllBtn = document.getElementById('markAllReadBtn');
+if (markAllBtn) {
+    markAllBtn.addEventListener('click', async () => {
+        try {
+            const response = await fetch('/notifications/api/mark-all-read', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+
+            if (response.ok) {
+                document.querySelectorAll('.notification-item.unread').forEach(item => {
+                    item.classList.remove('unread');
+                    const markReadBtn = item.querySelector('.mark-read');
+                    if (markReadBtn) markReadBtn.remove();
+                });
+                updateBadge();
+                showToast('All notifications marked as read', 'success');
+            }
+        } catch (error) {
+            console.error('Error marking all as read:', error);
+        }
+    });
+}
+
+// Update notification badge in navbar
+async function updateBadge() {
+    try {
+        const response = await fetch('/notifications/api/unread-count');
+        const data = await response.json();
+        const badge = document.querySelector('.notification-badge');
+        if (badge) {
+            if (data.count > 0) {
+                badge.textContent = data.count > 99 ? '99+' : data.count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Error updating badge:', error);
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="dashboard-header">
+        <div class="dashboard-welcome">
+            <h1>Hello, {{ current_user.username }}!</h1>
+            <p>Manage your projects and track your donations.</p>
+        </div>
+        <a href="{{ url_for('projects.create') }}" class="btn btn-primary">
+            + New Project
+        </a>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon projects">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value">{{ projects|length }}</span>
+                <span class="stat-label">Projects</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon raised">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="currentColor" d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value">{{ "%.2f"|format(total_raised|float) }} SOL</span>
+                <span class="stat-label">Total Raised</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon donated">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value">{{ "%.2f"|format(total_donated|float) }} SOL</span>
+                <span class="stat-label">Donated</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Draft Projects -->
+    {% if draft_projects %}
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>Drafts <span class="count">({{ draft_projects|length }})</span></h2>
+        </div>
+
+        <div class="drafts-list">
+            {% for project in draft_projects %}
+            <div class="draft-item">
+                <div class="draft-info">
+                    {% if project.primary_image %}
+                        <img src="{{ project.primary_image }}" alt="{{ project.title }}" class="draft-thumb">
+                    {% else %}
+                        <div class="draft-thumb-placeholder">◈</div>
+                    {% endif %}
+                    <div class="draft-details">
+                        <a href="{{ url_for('projects.detail', slug=project.slug) }}" class="draft-title">
+                            {{ project.title }}
+                        </a>
+                        <span class="draft-date">Created {{ project.created_at.strftime('%Y-%m-%d') }}</span>
+                    </div>
+                </div>
+                <div class="draft-actions">
+                    <a href="{{ url_for('projects.edit', id=project.id) }}" class="btn btn-sm btn-outline">Edit</a>
+                    <form action="{{ url_for('projects.publish', id=project.id) }}" method="POST" class="inline-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-primary">Publish</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- My Projects -->
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>My Projects</h2>
+            <a href="{{ url_for('projects.create') }}" class="section-link">+ New Project</a>
+        </div>
+
+        {% if projects %}
+            <div class="projects-table-container">
+                <table class="projects-table">
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>Status</th>
+                            <th>Raised</th>
+                            <th>Time Left</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in projects %}
+                        <tr>
+                            <td class="project-cell">
+                                <a href="{{ url_for('projects.detail', slug=project.slug) }}">
+                                    {% if project.primary_image %}
+                                        <img src="{{ project.primary_image }}" alt="{{ project.title }}" class="project-thumb">
+                                    {% else %}
+                                        <div class="project-thumb-placeholder">◈</div>
+                                    {% endif %}
+                                    <span>{{ project.title }}</span>
+                                </a>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ project.status }}">
+                                    {% if project.status == 'active' %}Active
+                                    {% elif project.status == 'ended' %}Ended
+                                    {% else %}{{ project.status }}{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="raised-info">
+                                    <span class="raised-amount">{{ "%.2f"|format(project.raised_sol|float) }} SOL</span>
+                                    <span class="raised-percent">{{ "%.0f"|format(project.progress_percent) }}%</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if project.is_ended %}
+                                    <span class="text-muted">-</span>
+                                {% else %}
+                                    {{ project.time_remaining.days if project.time_remaining else 0 }} days
+                                {% endif %}
+                            </td>
+                            <td class="actions-cell">
+                                <a href="{{ url_for('projects.detail', slug=project.slug) }}" class="btn btn-sm btn-outline">View</a>
+                                <a href="{{ url_for('projects.edit', id=project.id) }}" class="btn btn-sm btn-outline">Edit</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state small">
+                <p>You don't have any projects yet.</p>
+                <a href="{{ url_for('projects.create') }}" class="btn btn-primary">Create Your First Project</a>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Recent Donations -->
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>My Donations</h2>
+            <a href="{{ url_for('donations.my_donations') }}" class="section-link">View All →</a>
+        </div>
+
+        {% if recent_donations %}
+            <div class="donations-list compact">
+                {% for donation in recent_donations %}
+                <div class="donation-item">
+                    <div class="donation-project">
+                        <a href="{{ url_for('projects.detail', slug=donation.project.slug) }}">
+                            {{ donation.project.title }}
+                        </a>
+                    </div>
+                    <div class="donation-amount">{{ "%.4f"|format(donation.amount_sol|float) }} SOL</div>
+                    <div class="donation-date">{{ donation.created_at.strftime('%Y-%m-%d') }}</div>
+                    <a href="{{ donation.explorer_url }}" target="_blank" class="tx-link">TX ↗</a>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state small">
+                <p>You haven't supported any projects yet.</p>
+                <a href="{{ url_for('projects.list_projects') }}" class="btn btn-outline">Browse Projects</a>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Wallet Status -->
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>Payout Wallet</h2>
+        </div>
+
+        <div class="wallet-status-card">
+            {% if current_user.wallet_address %}
+                <div class="wallet-connected">
+                    <svg viewBox="0 0 24 24" width="24" height="24" class="status-icon success">
+                        <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    <div class="wallet-info">
+                        <span class="wallet-label">Set address:</span>
+                        <code class="wallet-address">{{ current_user.wallet_address }}</code>
+                    </div>
+                </div>
+                <a href="{{ url_for('profile.edit') }}" class="btn btn-sm btn-outline">Change</a>
+            {% else %}
+                <div class="wallet-not-connected">
+                    <svg viewBox="0 0 24 24" width="24" height="24" class="status-icon warning">
+                        <path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                    </svg>
+                    <div class="wallet-info">
+                        <span class="wallet-label">Wallet not set</span>
+                        <span class="wallet-hint">Set a Solana address to receive payouts from your projects.</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('profile.edit') }}" class="btn btn-sm btn-primary">Set Up</a>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Profile Settings - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="page-header align-left">
+        <h1>Profile Settings</h1>
+        <p>Edit your personal information and settings.</p>
+    </div>
+
+    <div class="settings-grid">
+        <!-- Profile Form -->
+        <div class="settings-main">
+            <form method="POST" class="settings-form" id="profileEditForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-section">
+                    <h2>Basic Info</h2>
+
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" value="{{ current_user.username }}"
+                               required minlength="3" maxlength="30" pattern="[a-zA-Z0-9_]+">
+                        <span class="form-hint">3-30 characters, letters, numbers and underscores only</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" name="bio" rows="3" maxlength="250"
+                                  placeholder="Short description about yourself...">{{ current_user.bio or '' }}</textarea>
+                        <span class="form-hint char-count" id="bioCount">{{ (current_user.bio or '')|length }}/250</span>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Payout Wallet</h2>
+                    <p class="section-hint">This address will be used to receive funds from your projects.</p>
+
+                    <div class="form-group">
+                        <label for="wallet_address">Solana Address</label>
+                        <input type="text" id="wallet_address" name="wallet_address"
+                               value="{{ current_user.wallet_address or '' }}"
+                               placeholder="Your Solana public key" maxlength="44">
+                        <span class="form-hint">44 characters, base58 format</span>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-outline" id="connectWalletForPayoutBtn">
+                        Use Connected Wallet
+                    </button>
+                </div>
+
+                <div class="form-section">
+                    <h2>Social Links</h2>
+
+                    <div class="form-group">
+                        <label for="website_url">Website</label>
+                        <input type="url" id="website_url" name="website_url"
+                               value="{{ current_user.website_url or '' }}"
+                               placeholder="https://your-website.com">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="twitter_url">Twitter/X</label>
+                            <input type="url" id="twitter_url" name="twitter_url"
+                                   value="{{ current_user.twitter_url or '' }}"
+                                   placeholder="https://twitter.com/your_name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telegram_url">Telegram</label>
+                            <input type="url" id="telegram_url" name="telegram_url"
+                                   value="{{ current_user.telegram_url or '' }}"
+                                   placeholder="https://t.me/your_name">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="github_url">GitHub</label>
+                            <input type="url" id="github_url" name="github_url"
+                                   value="{{ current_user.github_url or '' }}"
+                                   placeholder="https://github.com/your_name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="discord_url">Discord</label>
+                            <input type="url" id="discord_url" name="discord_url"
+                                   value="{{ current_user.discord_url or '' }}"
+                                   placeholder="https://discord.gg/your_server">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="linkedin_url">LinkedIn</label>
+                            <input type="url" id="linkedin_url" name="linkedin_url"
+                                   value="{{ current_user.linkedin_url or '' }}"
+                                   placeholder="https://linkedin.com/in/your_name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="youtube_url">YouTube</label>
+                            <input type="url" id="youtube_url" name="youtube_url"
+                                   value="{{ current_user.youtube_url or '' }}"
+                                   placeholder="https://youtube.com/@your_channel">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('profile.dashboard') }}" class="btn btn-outline">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="settings-sidebar">
+            <!-- Profile Image -->
+            <div class="profile-image-card">
+                <h3>Profile Picture</h3>
+                <div class="current-image">
+                    {% if current_user.profile_image %}
+                        <img src="{{ current_user.profile_image }}" alt="{{ current_user.username }}">
+                    {% else %}
+                        <div class="image-placeholder">{{ current_user.username[0].upper() }}</div>
+                    {% endif %}
+                </div>
+                <form action="{{ url_for('profile.upload_profile_image') }}" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="file" name="image" accept="image/*" id="profileImageInput" hidden>
+                    <button type="button" class="btn btn-outline btn-block" id="changeImageBtn">
+                        Change Picture
+                    </button>
+                </form>
+            </div>
+
+            <!-- Account Info -->
+            <div class="account-info-card">
+                <h3>Account Info</h3>
+                <div class="info-row">
+                    <span class="info-label">Account Type:</span>
+                    <span class="info-value">
+                        {% if current_user.auth_type == 'email' %}Email
+                        {% elif current_user.auth_type == 'google' %}Google
+                        {% elif current_user.auth_type == 'twitter' %}Twitter/X
+                        {% elif current_user.auth_type == 'wallet' %}Wallet
+                        {% else %}{{ current_user.auth_type }}{% endif %}
+                    </span>
+                </div>
+                {% if current_user.email %}
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">{{ current_user.email }}</span>
+                </div>
+                {% endif %}
+                <div class="info-row">
+                    <span class="info-label">Joined:</span>
+                    <span class="info-value">{{ current_user.created_at.strftime('%Y-%m-%d') }}</span>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="quick-links-card">
+                <h3>Quick Links</h3>
+                <a href="{{ url_for('profile.public_profile', username=current_user.username) }}" class="quick-link">
+                    <svg viewBox="0 0 24 24" width="18" height="18">
+                        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    View Public Profile
+                </a>
+                <a href="{{ url_for('donations.my_donations') }}" class="quick-link">
+                    <svg viewBox="0 0 24 24" width="18" height="18">
+                        <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    Donation History
+                </a>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Bio character count
+const bioInput = document.getElementById('bio');
+const bioCount = document.getElementById('bioCount');
+bioInput.addEventListener('input', () => {
+    bioCount.textContent = `${bioInput.value.length}/250`;
+});
+
+// Profile image upload
+const changeImageBtn = document.getElementById('changeImageBtn');
+const profileImageInput = document.getElementById('profileImageInput');
+
+changeImageBtn.addEventListener('click', () => {
+    profileImageInput.click();
+});
+
+profileImageInput.addEventListener('change', () => {
+    if (profileImageInput.files.length > 0) {
+        profileImageInput.closest('form').submit();
+    }
+});
+
+// Connect wallet for payout
+document.getElementById('connectWalletForPayoutBtn')?.addEventListener('click', async () => {
+    try {
+        let wallet = null;
+
+        if (window.solana?.isPhantom) {
+            wallet = window.solana;
+        } else if (window.solflare?.isSolflare) {
+            wallet = window.solflare;
+        } else if (window.backpack) {
+            wallet = window.backpack;
+        }
+
+        if (!wallet) {
+            showToast('No wallet found', 'error');
+            return;
+        }
+
+        const response = await wallet.connect();
+        const publicKey = response.publicKey.toString();
+        document.getElementById('wallet_address').value = publicKey;
+        showToast('Wallet address filled', 'success');
+
+    } catch (error) {
+        showToast('Failed to connect wallet', 'error');
+    }
+});
+</script>
+{% endblock %}

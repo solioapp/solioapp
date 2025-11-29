@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}FAQ - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="content-page">
+        <h1>Frequently Asked Questions</h1>
+
+        <div class="faq-list">
+            <div class="faq-item">
+                <h3>How do I create a project?</h3>
+                <p>Register or log in, click "Create Project" and fill in the required details - title, description, goal amount, and end date. We recommend adding quality images and a detailed description.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Which wallets are supported?</h3>
+                <p>We support most popular Solana wallets including Phantom, Solflare, and Backpack. To donate, you just need SOL in your wallet.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>How much do I pay to use the platform?</h3>
+                <p>The platform fee is 2.5% of the amount raised. This fee is deducted only at payout after the fundraiser ends. Additionally, you pay minimal Solana network transaction fees (usually less than $0.01 per transaction).</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>When will I receive the raised funds?</h3>
+                <p>Funds are automatically paid out to your configured Solana address after the fundraiser ends (according to the set end date). Payout is usually processed within 5 minutes after the fundraiser ends.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>What if I don't reach my goal?</h3>
+                <p>Unlike some other platforms, with Solio you receive the raised funds even if you don't reach your goal. There is no minimum threshold for payout.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Can I extend the fundraiser or change the goal?</h3>
+                <p>The end date and goal amount can only be changed while the project has no donations. After the first donation, these details are locked to maintain supporter trust.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>How does wallet login work?</h3>
+                <p>When logging in with a wallet, you sign a one-time message with a random code. This verifies that you own the wallet. We don't send any transactions and don't have access to your funds.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Are donations anonymous?</h3>
+                <p>Donations from non-logged-in users are displayed as "Anonymous". If you're logged in, your username is shown. However, all transactions are publicly visible on the blockchain.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>What are milestones (stretch goals)?</h3>
+                <p>Milestones are optional goals beyond the basic fundraising goal. They allow you to motivate supporters to make additional donations by promising additional content or features when a higher amount is reached.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Is Solio available on mainnet or devnet?</h3>
+                <p>We are currently running on {% if config.USE_DEVNET %}devnet (test network){% else %}mainnet (production network){% endif %}. On devnet, you can test with test SOL obtained from the Solana faucet.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Where can I get help with a problem?</h3>
+                <p>If you have any problem or question, contact us through social media or write to support.</p>
+            </div>
+        </div>
+
+        <div class="cta-box">
+            <h3>Didn't find your answer?</h3>
+            <p>Contact us and we'll be happy to help.</p>
+            <a href="{{ url_for('main.about') }}" class="btn btn-outline">Contact Us</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

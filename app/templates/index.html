@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Solio - Crowdfunding on Solana{% endblock %}
+{% block description %}Support innovative projects on Solana blockchain. Fast transactions, low fees, transparent fundraising.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                Next-Gen Crowdfunding
+            </h1>
+            <p class="hero-subtitle">
+                Support projects powered by Solana blockchain.
+                Fast transactions, low fees, 100% transparency.
+            </p>
+            <div class="hero-actions">
+                <a href="{{ url_for('projects.list_projects') }}" class="btn btn-primary btn-lg">
+                    Browse Projects
+                </a>
+                <a href="{{ url_for('projects.create') }}" class="btn btn-outline btn-lg">
+                    Create Project
+                </a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <model-viewer
+                src="{{ url_for('static', filename='models/crystal.glb') }}"
+                alt="3D Crystal"
+                auto-rotate
+                auto-rotate-delay="0"
+                rotation-per-second="30deg"
+                camera-controls
+                disable-zoom
+                interaction-prompt="none"
+                shadow-intensity="0"
+                exposure="1.2"
+                class="hero-3d-model"
+            ></model-viewer>
+        </div>
+    </div>
+</section>
+
+<!-- Platform Stats -->
+<section class="platform-stats">
+    <div class="container">
+        <div class="stats-boxes">
+            <div class="stat-box glass-card">
+                <span class="stat-value" id="statProjects">0</span>
+                <span class="stat-label">Projects</span>
+            </div>
+            <div class="stat-box glass-card">
+                <span class="stat-value" id="statRaised">0 SOL</span>
+                <span class="stat-label">Total Raised</span>
+            </div>
+            <div class="stat-box glass-card">
+                <span class="stat-value" id="statDonations">0</span>
+                <span class="stat-label">Donations</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Projects -->
+{% if featured_projects %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Popular Projects</h2>
+            <a href="{{ url_for('projects.list_projects', sort='popular') }}" class="section-link">
+                View All →
+            </a>
+        </div>
+        <div class="projects-grid">
+            {% for project in featured_projects %}
+                {% include "components/project_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Newest Projects -->
+{% if newest_projects %}
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-header">
+            <h2>Latest Projects</h2>
+            <a href="{{ url_for('projects.list_projects', sort='newest') }}" class="section-link">
+                View All →
+            </a>
+        </div>
+        <div class="projects-grid">
+            {% for project in newest_projects %}
+                {% include "components/project_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- How It Works -->
+<section class="section">
+    <div class="container">
+        <div class="section-header center">
+            <h2>How It Works</h2>
+            <p>Simple steps to successful crowdfunding</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Create a Project</h3>
+                <p>Describe your idea, set a goal and end date for your fundraiser.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Share</h3>
+                <p>Promote your project on social media and find supporters.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Receive Donations</h3>
+                <p>Supporters send SOL directly from their wallets.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>Withdraw Funds</h3>
+                <p>After the fundraiser ends, you'll receive 97.5% of raised funds.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Ready to Start?</h2>
+            <p>Create your first project in just a few minutes.</p>
+            <a href="{{ url_for('projects.create') }}" class="btn btn-primary btn-lg">
+                Create Project Free
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load platform stats
+fetch('/donations/stats')
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('statProjects').textContent = data.total_projects || 0;
+        document.getElementById('statRaised').textContent = (parseFloat(data.total_raised_sol) || 0).toFixed(2) + ' SOL';
+        document.getElementById('statDonations').textContent = data.total_donations || 0;
+    })
+    .catch(() => {});
+</script>
+{% endblock %}

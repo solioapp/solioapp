@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}My Donations - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="page-header">
+        <h1>My Donations</h1>
+        <p>Overview of all your donations</p>
+    </div>
+
+    {% if donations %}
+        <div class="donations-table-container">
+            <table class="donations-table">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Amount</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th>Transaction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for donation in donations %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('projects.detail', slug=donation.project.slug) }}">
+                                {{ donation.project.title }}
+                            </a>
+                        </td>
+                        <td class="amount-cell">{{ "%.4f"|format(donation.amount_sol|float) }} SOL</td>
+                        <td class="message-cell">
+                            {% if donation.message %}
+                                <span class="truncate" title="{{ donation.message }}">{{ donation.message[:50] }}{% if donation.message|length > 50 %}...{% endif %}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ donation.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <a href="{{ donation.explorer_url }}" target="_blank" class="tx-link">
+                                {{ donation.tx_signature[:8] }}...
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+            <nav class="pagination">
+                {% if pagination.has_prev %}
+                    <a href="{{ url_for('donations.my_donations', page=pagination.prev_num) }}"
+                       class="pagination-link">Previous</a>
+                {% endif %}
+
+                <div class="pagination-numbers">
+                    {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            <a href="{{ url_for('donations.my_donations', page=page_num) }}"
+                               class="pagination-link {{ 'active' if page_num == pagination.page }}">{{ page_num }}</a>
+                        {% else %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if pagination.has_next %}
+                    <a href="{{ url_for('donations.my_donations', page=pagination.next_num) }}"
+                       class="pagination-link">Next</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">♥</div>
+            <h2>No Donations</h2>
+            <p>You haven't supported any projects yet.</p>
+            <a href="{{ url_for('projects.list_projects') }}" class="btn btn-primary">
+                Browse Projects
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

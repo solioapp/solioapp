@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}About - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="content-page">
+        <h1>About Solio</h1>
+
+        <div class="content-section">
+            <h2>What is Solio?</h2>
+            <p>Solio is a next-generation crowdfunding platform built on the Solana blockchain. It allows creators to easily raise funds for their projects and supporters to easily contribute using their crypto wallets.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>Why Solana?</h2>
+            <ul>
+                <li><strong>Speed</strong> - Transactions are confirmed within seconds</li>
+                <li><strong>Low Fees</strong> - Transaction fees are a fraction of a cent</li>
+                <li><strong>Transparency</strong> - All transactions are publicly verifiable on the blockchain</li>
+                <li><strong>Security</strong> - Decentralized network ensures the safety of funds</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>How It Works</h2>
+            <div class="steps-vertical">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Create a Project</h3>
+                        <p>Register, describe your project, set a goal amount and end date for the fundraiser.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Share</h3>
+                        <p>Promote your project on social media and attract supporters.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Receive Donations</h3>
+                        <p>Supporters send SOL directly from their wallets. 100% of funds go to the platform wallet during the fundraiser.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Withdraw Funds</h3>
+                        <p>After the fundraiser ends, a 2.5% fee is automatically deducted and 97.5% is sent to your wallet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Fees</h2>
+            <p>Solio charges only <strong>2.5%</strong> of the total amount raised. This fee is deducted only at payout, so 100% of donations go to the fundraiser first.</p>
+            <p>Besides the platform fee, you only pay minimal Solana network transaction fees (typically less than $0.01).</p>
+        </div>
+
+        <div class="content-section">
+            <h2>Security</h2>
+            <ul>
+                <li>Funds are securely stored on the platform wallet during the fundraiser</li>
+                <li>All transactions are verifiable on the Solana blockchain</li>
+                <li>We never have access to your private keys</li>
+                <li>We use standard security protocols to protect data</li>
+            </ul>
+        </div>
+
+        <div class="cta-box">
+            <h3>Ready to Start?</h3>
+            <p>Create your first project in just a few minutes.</p>
+            <a href="{{ url_for('projects.create') }}" class="btn btn-primary btn-lg">Create Project</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <circle cx="64" cy="64" r="64" fill="url(#phantom-grad)"/>
+  <path d="M110.584 64.916H99.142C99.142 41.282 80.017 22.157 56.383 22.157C33.166 22.157 14.303 40.602 13.834 63.664C13.356 87.142 34.009 107.843 57.487 107.843H60.334C80.972 107.843 97.803 93.019 101.089 73.661H110.584C112.122 73.661 113.373 72.409 113.373 70.871V67.705C113.373 66.168 112.122 64.916 110.584 64.916Z" fill="white"/>
+  <circle cx="42" cy="62" r="8" fill="#AB9FF2"/>
+  <circle cx="69" cy="62" r="8" fill="#AB9FF2"/>
+  <defs>
+    <linearGradient id="phantom-grad" x1="0" y1="0" x2="128" y2="128">
+      <stop stop-color="#534BB1"/>
+      <stop offset="1" stop-color="#551BF9"/>
+    </linearGradient>
+  </defs>
+</svg>

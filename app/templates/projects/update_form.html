@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}{% if update %}Edit Update{% else %}Post Update{% endif %} - {{ project.title }} - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="page-header align-left">
+        <nav class="breadcrumb">
+            <a href="{{ url_for('projects.list_projects') }}">Projects</a>
+            <span>/</span>
+            <a href="{{ url_for('projects.detail', slug=project.slug) }}">{{ project.title }}</a>
+            <span>/</span>
+            <a href="{{ url_for('projects.list_updates', id=project.id) }}">Updates</a>
+            <span>/</span>
+            <span>{% if update %}Edit{% else %}New{% endif %}</span>
+        </nav>
+        <h1>{% if update %}Edit Update{% else %}Post New Update{% endif %}</h1>
+        <p>{{ project.title }}</p>
+    </div>
+
+    <form method="POST" class="update-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-section">
+            <div class="form-group">
+                <label for="title">Update Title *</label>
+                <input type="text" id="title" name="title"
+                       value="{{ update.title if update else title|default('') }}"
+                       placeholder="What's new with your project?"
+                       required maxlength="200">
+                <span class="form-hint">A clear, descriptive title (3-200 characters)</span>
+            </div>
+
+            <div class="form-group">
+                <label for="content">Update Content *</label>
+                <div id="updateEditor" class="quill-editor"></div>
+                <input type="hidden" id="content" name="content" value="">
+                <span class="form-hint">Share progress, news, or milestones with your backers</span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('projects.list_updates', id=project.id) }}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                {% if update %}Save Changes{% else %}Post Update{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize Quill Editor
+const quill = new Quill('#updateEditor', {
+    theme: 'snow',
+    placeholder: 'Write your update here...',
+    modules: {
+        toolbar: {
+            container: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['blockquote', 'code-block'],
+                ['link', 'image', 'video'],
+                ['clean']
+            ],
+            handlers: {
+                image: imageHandler
+            }
+        }
+    }
+});
+
+// Load existing content if editing
+{% if update %}
+const existingContent = `{{ update.content|safe|replace('\\', '\\\\')|replace('`', '\\`')|replace('\n', '\\n')|replace('\r', '') }}`;
+if (existingContent) {
+    quill.root.innerHTML = existingContent;
+}
+{% endif %}
+
+// Image handler
+function imageHandler() {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+        const file = input.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Image must be smaller than 5MB', 'error');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Upload failed');
+
+                const data = await response.json();
+                const range = quill.getSelection(true);
+                quill.insertEmbed(range.index, 'image', data.url);
+                quill.setSelection(range.index + 1);
+
+            } catch (error) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const range = quill.getSelection(true);
+                    quill.insertEmbed(range.index, 'image', e.target.result);
+                    quill.setSelection(range.index + 1);
+                };
+                reader.readAsDataURL(file);
+            } finally {
+                hideLoading();
+            }
+        }
+    };
+}
+
+// Form submission
+document.querySelector('.update-form').addEventListener('submit', function(e) {
+    const contentHtml = quill.root.innerHTML;
+    const contentText = quill.getText().trim();
+
+    if (contentText.length < 10) {
+        e.preventDefault();
+        showToast('Content must be at least 10 characters.', 'error');
+        return false;
+    }
+
+    document.getElementById('content').value = contentHtml;
+});
+</script>
+{% endblock %}

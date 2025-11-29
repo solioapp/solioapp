@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Too Many Requests - Solio{% endblock %}
+{% block content %}
+<div class="error-page">
+    <div class="error-content">
+        <h1 class="error-code">429</h1>
+        <h2>Too Many Requests</h2>
+        <p>You have exceeded the request limit. Please wait a moment and try again.</p>
+        <div class="error-actions">
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

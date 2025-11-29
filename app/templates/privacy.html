@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="content-page legal">
+        <h1>Privacy Policy</h1>
+        <p class="last-updated">Last updated: {{ now().strftime('%Y-%m-%d') if now is defined else '2024' }}</p>
+
+        <div class="content-section">
+            <h2>1. Introduction</h2>
+            <p>This privacy policy explains how Solio collects, uses, and protects your personal data.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>2. What Data We Collect</h2>
+            <h3>User-provided data:</h3>
+            <ul>
+                <li>Email and password (for email registration)</li>
+                <li>Username</li>
+                <li>Profile information (bio, photo, social links)</li>
+                <li>Solana wallet address</li>
+                <li>Project data</li>
+            </ul>
+
+            <h3>Automatically collected data:</h3>
+            <ul>
+                <li>IP address</li>
+                <li>Browser information</li>
+                <li>Date and time of access</li>
+                <li>Blockchain transaction data (public)</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>3. How We Use Data</h2>
+            <ul>
+                <li>Providing and improving the service</li>
+                <li>Identity verification and authentication</li>
+                <li>Transaction processing</li>
+                <li>Communication with users</li>
+                <li>Fraud prevention</li>
+                <li>Compliance with legal requirements</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>4. Data Sharing</h2>
+            <p>We do not share your personal data with third parties, except:</p>
+            <ul>
+                <li>Service providers (hosting, email)</li>
+                <li>When required by law</li>
+                <li>With your consent</li>
+            </ul>
+            <p><strong>Note:</strong> Blockchain transactions are public and visible to everyone.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>5. Cookies</h2>
+            <p>We use cookies for:</p>
+            <ul>
+                <li>Maintaining login sessions (session cookies)</li>
+                <li>Security (CSRF tokens)</li>
+                <li>Remembering preferences</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>6. Security</h2>
+            <p>We implement reasonable measures to protect your data:</p>
+            <ul>
+                <li>Password encryption (bcrypt)</li>
+                <li>HTTPS communication</li>
+                <li>CSRF attack protection</li>
+                <li>Regular backups</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>7. Your Rights</h2>
+            <p>You have the right to:</p>
+            <ul>
+                <li>Access your data</li>
+                <li>Correct inaccurate data</li>
+                <li>Delete your account</li>
+                <li>Export your data</li>
+                <li>Withdraw consent</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>8. Data Retention</h2>
+            <p>We retain your data for the duration of your account's existence. After account deletion, personal data is removed, except for data required by law or related to blockchain transactions (which are permanent).</p>
+        </div>
+
+        <div class="content-section">
+            <h2>9. Policy Changes</h2>
+            <p>We will notify you of significant changes to this policy via email or announcement on the platform.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>10. Contact</h2>
+            <p>For privacy-related questions, contact us at: <a href="mailto:{{ config.SUPPORT_EMAIL }}">{{ config.SUPPORT_EMAIL }}</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

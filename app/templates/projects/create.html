@@ -1,0 +1,539 @@
+{% extends "base.html" %}
+
+{% block title %}Create Project - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="page-header">
+        <h1>Create New Project</h1>
+        <p>Fill in your project details and launch your fundraiser</p>
+    </div>
+
+    <form method="POST" class="project-form" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-section">
+            <h2>Basic Information</h2>
+
+            <div class="form-group">
+                <label for="title">Project Title *</label>
+                <input type="text" id="title" name="title" value="{{ title|default('') }}"
+                       placeholder="Your project title" required maxlength="100">
+                <span class="form-hint">Clear and catchy title (max 100 characters)</span>
+            </div>
+
+            <div class="form-group">
+                <label for="category_id">Category</label>
+                <select id="category_id" name="category_id" class="form-select">
+                    <option value="">Select a category...</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {{ 'selected' if selected_category == cat.id }}>
+                        {{ cat.icon }} {{ cat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <span class="form-hint">Choose a category to help users find your project</span>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Project Description *</label>
+                <div id="descriptionEditor" class="quill-editor"></div>
+                <input type="hidden" id="description" name="description" value="{{ description|default('') }}">
+                <span class="form-hint">Add text, images, videos, and formatting. Min. 10 characters.</span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Goal & Timeline</h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="goal_sol">Goal Amount (SOL) *</label>
+                    <div class="input-with-addon">
+                        <input type="number" id="goal_sol" name="goal_sol" value="{{ goal_sol|default('') }}"
+                               step="0.01" min="0.1" placeholder="10" required>
+                        <span class="input-addon">SOL</span>
+                    </div>
+                    <p class="usd-estimate" id="goalUsdEstimate">≈ $0 USD</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="end_date">End Date *</label>
+                    <input type="datetime-local" id="end_date" name="end_date"
+                           value="{{ end_date|default('') }}" required>
+                    <span class="form-hint">When should the fundraiser end</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Media</h2>
+
+            <div class="form-group">
+                <label>Project Images</label>
+                <div class="image-upload-area" id="imageUploadArea">
+                    <div class="upload-placeholder">
+                        <svg viewBox="0 0 24 24" width="48" height="48">
+                            <path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                        </svg>
+                        <p>Click to select images</p>
+                        <span class="form-hint">PNG, JPG, GIF up to 5MB. Max 5 images.</span>
+                    </div>
+                    <input type="file" id="imageInput" name="images" accept="image/png,image/jpeg,image/gif,image/webp" multiple>
+                </div>
+                <div class="image-preview-grid" id="imagePreviewGrid"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="video_url">Video URL (optional)</label>
+                <input type="url" id="video_url" name="video_url" value="{{ video_url|default('') }}"
+                       placeholder="https://youtube.com/watch?v=...">
+                <span class="form-hint">YouTube or Vimeo link</span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Milestones (optional)</h2>
+            <p class="section-hint">Set stretch goals to motivate additional donations.</p>
+
+            <div class="milestones-container" id="milestonesContainer">
+                <!-- Dynamic milestone inputs -->
+            </div>
+
+            <button type="button" class="btn btn-outline btn-sm" id="addMilestoneBtn">
+                + Add Milestone
+            </button>
+        </div>
+
+        <div class="form-section">
+            <h2>Reward Tiers (optional)</h2>
+            <p class="section-hint">Offer rewards or perks to encourage larger donations. Donors will provide their email so you can fulfill rewards.</p>
+
+            <div class="reward-tiers-container" id="rewardTiersContainer">
+                <!-- Dynamic reward tier inputs -->
+            </div>
+
+            <button type="button" class="btn btn-outline btn-sm" id="addRewardTierBtn">
+                + Add Reward Tier
+            </button>
+        </div>
+
+        <div class="form-section">
+            <h2>Project Links (optional)</h2>
+
+            <div class="form-group">
+                <label for="project_website">Project Website</label>
+                <input type="url" id="project_website" name="project_website"
+                       placeholder="https://your-project.com">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_twitter">Twitter/X</label>
+                    <input type="url" id="project_twitter" name="project_twitter"
+                           placeholder="https://twitter.com/yourproject">
+                </div>
+
+                <div class="form-group">
+                    <label for="project_telegram">Telegram</label>
+                    <input type="url" id="project_telegram" name="project_telegram"
+                           placeholder="https://t.me/yourproject">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_github">GitHub</label>
+                    <input type="url" id="project_github" name="project_github"
+                           placeholder="https://github.com/yourproject">
+                </div>
+
+                <div class="form-group">
+                    <label for="project_discord">Discord</label>
+                    <input type="url" id="project_discord" name="project_discord"
+                           placeholder="https://discord.gg/yourserver">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_linkedin">LinkedIn</label>
+                    <input type="url" id="project_linkedin" name="project_linkedin"
+                           placeholder="https://linkedin.com/company/yourproject">
+                </div>
+
+                <div class="form-group">
+                    <label for="project_youtube">YouTube</label>
+                    <input type="url" id="project_youtube" name="project_youtube"
+                           placeholder="https://youtube.com/@yourchannel">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section consent-section">
+            <h2>Terms Agreement</h2>
+            <button type="button" class="btn btn-sm btn-outline" id="selectAllConsents">
+                Select All
+            </button>
+
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="terms_consent" id="terms_consent" required>
+                    <span class="checkmark"></span>
+                    <span>I agree to the <a href="{{ url_for('main.terms') }}" target="_blank">Terms of Service</a> and <a href="{{ url_for('main.privacy') }}" target="_blank">Privacy Policy</a> of the Solio platform. *</span>
+                </label>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="content_consent" id="content_consent" required>
+                    <span class="checkmark"></span>
+                    <span>I declare that my project does not violate platform terms, specifically that it does not contain prohibited content (weapons, drugs, pornography, hate speech, fraud). *</span>
+                </label>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="responsibility_consent" id="responsibility_consent" required>
+                    <span class="checkmark"></span>
+                    <span>I acknowledge that I am fully responsible for the project content and fulfilling promises to donors. *</span>
+                </label>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="payout_consent" id="payout_consent" required>
+                    <span class="checkmark"></span>
+                    <span>I understand that collected funds (minus 2.5% fee) will be paid out to my Solana wallet after the fundraiser ends. *</span>
+                </label>
+            </div>
+        </div>
+
+        <input type="hidden" name="save_draft" id="save_draft" value="0">
+
+        <div class="form-actions">
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline">Cancel</a>
+            <button type="button" class="btn btn-secondary" id="saveDraftBtn">
+                Save as Draft
+            </button>
+            <button type="submit" class="btn btn-primary btn-lg">
+                Publish Project
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize Quill Editor
+const quill = new Quill('#descriptionEditor', {
+    theme: 'snow',
+    placeholder: 'Describe your project, why you\'re raising funds and how you\'ll use them...',
+    modules: {
+        toolbar: {
+            container: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['blockquote', 'code-block'],
+                ['link', 'image', 'video'],
+                ['clean']
+            ],
+            handlers: {
+                image: imageHandler
+            }
+        }
+    }
+});
+
+// Load existing content if any
+const existingContent = document.getElementById('description').value;
+if (existingContent) {
+    quill.root.innerHTML = existingContent;
+}
+
+// Image handler - allows URL or file upload
+function imageHandler() {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+        const file = input.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Image must be smaller than 5MB', 'error');
+                return;
+            }
+
+            // Show loading
+            showLoading();
+
+            try {
+                // Upload to server
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+
+                const data = await response.json();
+                const range = quill.getSelection(true);
+                quill.insertEmbed(range.index, 'image', data.url);
+                quill.setSelection(range.index + 1);
+
+            } catch (error) {
+                console.error('Image upload error:', error);
+                // Fallback to base64 if server upload fails
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const range = quill.getSelection(true);
+                    quill.insertEmbed(range.index, 'image', e.target.result);
+                    quill.setSelection(range.index + 1);
+                };
+                reader.readAsDataURL(file);
+            } finally {
+                hideLoading();
+            }
+        }
+    };
+}
+
+// Image upload preview
+const imageUploadArea = document.getElementById('imageUploadArea');
+const imageInput = document.getElementById('imageInput');
+const imagePreviewGrid = document.getElementById('imagePreviewGrid');
+
+imageUploadArea.addEventListener('click', () => imageInput.click());
+
+imageInput.addEventListener('change', (e) => {
+    imagePreviewGrid.innerHTML = '';
+    const files = Array.from(e.target.files).slice(0, 5); // Max 5 images
+
+    if (e.target.files.length > 5) {
+        showToast('Maximum 5 images. First ones selected.', 'warning');
+    }
+
+    files.forEach((file, index) => {
+        if (file.size > 5 * 1024 * 1024) {
+            showToast(`${file.name} is larger than 5MB`, 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const preview = document.createElement('div');
+            preview.className = 'image-preview';
+            preview.innerHTML = `<img src="${ev.target.result}" alt="Preview ${index + 1}">`;
+            imagePreviewGrid.appendChild(preview);
+        };
+        reader.readAsDataURL(file);
+    });
+});
+
+// Milestones
+const milestonesContainer = document.getElementById('milestonesContainer');
+let milestoneCount = 0;
+
+document.getElementById('addMilestoneBtn').addEventListener('click', () => {
+    milestoneCount++;
+    const milestone = document.createElement('div');
+    milestone.className = 'milestone-input';
+    milestone.innerHTML = `
+        <div class="milestone-header">
+            <span>Milestone ${milestoneCount}</span>
+            <button type="button" class="remove-milestone">&times;</button>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text" name="milestone_title[]" placeholder="E.g. Bonus content" required>
+            </div>
+            <div class="form-group">
+                <label>Amount (SOL) *</label>
+                <input type="number" name="milestone_amount[]" step="0.01" min="0.01" placeholder="15" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="milestone_description[]" rows="2" placeholder="What happens when this goal is reached..."></textarea>
+        </div>
+    `;
+    milestone.querySelector('.remove-milestone').addEventListener('click', () => {
+        milestone.remove();
+    });
+    milestonesContainer.appendChild(milestone);
+});
+
+// Reward Tiers
+const rewardTiersContainer = document.getElementById('rewardTiersContainer');
+let tierCount = 0;
+
+document.getElementById('addRewardTierBtn').addEventListener('click', () => {
+    tierCount++;
+    const tier = document.createElement('div');
+    tier.className = 'reward-tier-input';
+    tier.innerHTML = `
+        <div class="tier-header">
+            <span>Reward Tier ${tierCount}</span>
+            <button type="button" class="remove-tier">&times;</button>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text" name="tier_title[]" placeholder="E.g. Early Supporter" required>
+            </div>
+            <div class="form-group">
+                <label>Minimum Amount (SOL) *</label>
+                <input type="number" name="tier_amount[]" step="0.01" min="0.01" placeholder="1" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description *</label>
+            <textarea name="tier_description[]" rows="2" placeholder="What the donor receives..." required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Limit (optional)</label>
+            <input type="number" name="tier_limit[]" min="1" placeholder="Leave empty for unlimited">
+            <span class="form-hint">Maximum number of claims for this tier</span>
+        </div>
+    `;
+    tier.querySelector('.remove-tier').addEventListener('click', () => {
+        tier.remove();
+    });
+    rewardTiersContainer.appendChild(tier);
+});
+
+// USD estimate for goal
+let solPrice = null;
+fetch('/api/sol-price')
+    .then(r => r.json())
+    .then(data => {
+        solPrice = data.price_usd;
+        updateGoalEstimate();
+    });
+
+function updateGoalEstimate() {
+    const goalInput = document.getElementById('goal_sol');
+    const estimate = document.getElementById('goalUsdEstimate');
+    if (solPrice && goalInput.value) {
+        const usd = (parseFloat(goalInput.value) * solPrice).toFixed(0);
+        estimate.textContent = `≈ $${usd} USD`;
+    }
+}
+
+document.getElementById('goal_sol').addEventListener('input', updateGoalEstimate);
+
+// Select all consents
+document.getElementById('selectAllConsents').addEventListener('click', () => {
+    const checkboxes = document.querySelectorAll('.consent-section input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = true);
+    showToast('All terms selected', 'success');
+});
+
+// Set minimum end date to tomorrow
+const endDateInput = document.getElementById('end_date');
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+endDateInput.min = tomorrow.toISOString().slice(0, 16);
+
+// Form validation before submit
+document.querySelector('.project-form').addEventListener('submit', function(e) {
+    // Get Quill content and set to hidden input
+    const descriptionHtml = quill.root.innerHTML;
+    const descriptionText = quill.getText().trim();
+    document.getElementById('description').value = descriptionHtml;
+
+    const title = document.getElementById('title').value.trim();
+    const goalSol = document.getElementById('goal_sol').value;
+    const endDate = document.getElementById('end_date').value;
+
+    let errors = [];
+
+    if (title.length < 3) {
+        errors.push('Title must be at least 3 characters.');
+    }
+
+    if (descriptionText.length < 10) {
+        errors.push('Description must be at least 10 characters.');
+    }
+
+    if (!goalSol || parseFloat(goalSol) < 0.1) {
+        errors.push('Goal amount must be at least 0.1 SOL.');
+    }
+
+    if (!endDate) {
+        errors.push('Please select an end date.');
+    }
+
+    // Check all consent checkboxes
+    const checkboxes = document.querySelectorAll('.consent-section input[type="checkbox"]');
+    let allChecked = true;
+    checkboxes.forEach(cb => {
+        if (!cb.checked) allChecked = false;
+    });
+
+    if (!allChecked) {
+        errors.push('You must agree to all terms.');
+    }
+
+    if (errors.length > 0) {
+        e.preventDefault();
+        errors.forEach(error => showToast(error, 'error'));
+        return false;
+    }
+});
+
+// Save as Draft handler
+document.getElementById('saveDraftBtn').addEventListener('click', function() {
+    // Set draft flag
+    document.getElementById('save_draft').value = '1';
+
+    // Get Quill content
+    const descriptionHtml = quill.root.innerHTML;
+    const descriptionText = quill.getText().trim();
+    document.getElementById('description').value = descriptionHtml;
+
+    const title = document.getElementById('title').value.trim();
+    const goalSol = document.getElementById('goal_sol').value;
+    const endDate = document.getElementById('end_date').value;
+
+    let errors = [];
+
+    // Minimal validation for drafts - just require title
+    if (title.length < 3) {
+        errors.push('Title must be at least 3 characters.');
+    }
+
+    // Still need basic goal and end date
+    if (!goalSol || parseFloat(goalSol) < 0.1) {
+        errors.push('Goal amount must be at least 0.1 SOL.');
+    }
+
+    if (!endDate) {
+        errors.push('Please select an end date.');
+    }
+
+    if (errors.length > 0) {
+        errors.forEach(error => showToast(error, 'error'));
+        document.getElementById('save_draft').value = '0';
+        return;
+    }
+
+    // Submit the form
+    document.querySelector('.project-form').submit();
+});
+</script>
+{% endblock %}

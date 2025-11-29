@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Unauthorized - Solio{% endblock %}
+{% block content %}
+<div class="error-page">
+    <div class="error-content">
+        <h1 class="error-code">401</h1>
+        <h2>Login Required</h2>
+        <p>You must be logged in to access this page.</p>
+        <div class="error-actions">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log In</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline">Register</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

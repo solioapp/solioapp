@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Project - {{ project.title }} - Solio{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="page-header">
+        <h1>Edit Project</h1>
+        <p>{{ project.title }}</p>
+    </div>
+
+    <form method="POST" class="project-form" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-section">
+            <h2>Basic Information</h2>
+
+            <div class="form-group">
+                <label for="title">Project Title *</label>
+                <input type="text" id="title" name="title" value="{{ project.title }}"
+                       required maxlength="100">
+            </div>
+
+            <div class="form-group">
+                <label for="category_id">Category</label>
+                <select id="category_id" name="category_id" class="form-select">
+                    <option value="">Select a category...</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {{ 'selected' if project.category_id == cat.id }}>
+                        {{ cat.icon }} {{ cat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Project Description *</label>
+                <div id="descriptionEditor" class="quill-editor"></div>
+                <input type="hidden" id="description" name="description" value="">
+            </div>
+        </div>
+
+        {% if project.donation_count == 0 %}
+        <div class="form-section">
+            <h2>Goal & Timeline</h2>
+            <p class="section-hint warning">These details can only be changed if the project has no donations yet.</p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="goal_sol">Goal Amount (SOL) *</label>
+                    <div class="input-with-addon">
+                        <input type="number" id="goal_sol" name="goal_sol" value="{{ project.goal_sol }}"
+                               step="0.01" min="0.1" required>
+                        <span class="input-addon">SOL</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="end_date">End Date *</label>
+                    <input type="datetime-local" id="end_date" name="end_date"
+                           value="{{ project.end_date.strftime('%Y-%m-%dT%H:%M') }}" required>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="form-section">
+            <div class="info-box">
+                <p><strong>Goal and date cannot be changed</strong></p>
+                <p>The project already has donations, so the goal amount and end date cannot be modified.</p>
+                <p>Current goal: {{ "%.2f"|format(project.goal_sol|float) }} SOL</p>
+                <p>End date: {{ project.end_date.strftime('%Y-%m-%d %H:%M') }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="form-section">
+            <h2>Images</h2>
+
+            {% if project.images and project.images|length > 0 %}
+            <div class="current-images">
+                <p>Current images:</p>
+                <div class="image-preview-grid">
+                    {% for image in project.images %}
+                    <div class="image-preview" data-index="{{ loop.index0 }}">
+                        <img src="{{ image }}" alt="Image {{ loop.index }}">
+                        <button type="button" class="remove-image" data-index="{{ loop.index0 }}">&times;</button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label>Add Image</label>
+                <input type="file" name="image" accept="image/*" class="file-input">
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Video</h2>
+
+            <div class="form-group">
+                <label for="video_url">Video URL</label>
+                <input type="url" id="video_url" name="video_url" value="{{ project.video_url or '' }}"
+                       placeholder="https://youtube.com/watch?v=...">
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Milestones</h2>
+
+            {% if milestones %}
+            <div class="milestones-list edit-mode">
+                {% for milestone in milestones %}
+                <div class="milestone-edit-item">
+                    <form action="{{ url_for('projects.edit_milestone', id=project.id, mid=milestone.id) }}" method="POST" class="inline-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-row">
+                            <input type="text" name="title" value="{{ milestone.title }}" placeholder="Title">
+                            <input type="number" name="amount_sol" value="{{ milestone.amount_sol }}" step="0.01" placeholder="SOL">
+                        </div>
+                        <textarea name="description" rows="1" placeholder="Description">{{ milestone.description or '' }}</textarea>
+                        <div class="milestone-actions">
+                            <button type="submit" class="btn btn-sm">Save</button>
+                            <button type="submit" name="_method" value="DELETE" class="btn btn-sm btn-danger">Delete</button>
+                        </div>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form action="{{ url_for('projects.add_milestone', id=project.id) }}" method="POST" class="add-milestone-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <h4>Add New Milestone</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="title" placeholder="E.g. Bonus content">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount (SOL)</label>
+                        <input type="number" name="amount_sol" step="0.01" min="0.01" placeholder="15">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="2" placeholder="What happens when this goal is reached..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-outline">Add Milestone</button>
+            </form>
+        </div>
+
+        <div class="form-section">
+            <h2>Project Links</h2>
+
+            <div class="form-group">
+                <label for="project_website">Project Website</label>
+                <input type="url" id="project_website" name="project_website"
+                       value="{{ project.project_website or '' }}" placeholder="https://your-project.com">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_twitter">Twitter/X</label>
+                    <input type="url" id="project_twitter" name="project_twitter"
+                           value="{{ project.project_twitter or '' }}" placeholder="https://twitter.com/yourproject">
+                </div>
+
+                <div class="form-group">
+                    <label for="project_telegram">Telegram</label>
+                    <input type="url" id="project_telegram" name="project_telegram"
+                           value="{{ project.project_telegram or '' }}" placeholder="https://t.me/yourproject">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_github">GitHub</label>
+                    <input type="url" id="project_github" name="project_github"
+                           value="{{ project.project_github or '' }}" placeholder="https://github.com/yourproject">
+                </div>
+
+                <div class="form-group">
+                    <label for="project_discord">Discord</label>
+                    <input type="url" id="project_discord" name="project_discord"
+                           value="{{ project.project_discord or '' }}" placeholder="https://discord.gg/yourserver">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_linkedin">LinkedIn</label>
+                    <input type="url" id="project_linkedin" name="project_linkedin"
+                           value="{{ project.project_linkedin or '' }}" placeholder="https://linkedin.com/company/yourproject">
+                </div>
+
+                <div class="form-group">
+                    <label for="project_youtube">YouTube</label>
+                    <input type="url" id="project_youtube" name="project_youtube"
+                           value="{{ project.project_youtube or '' }}" placeholder="https://youtube.com/@yourchannel">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('projects.detail', slug=project.slug) }}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+
+    {% if project.donation_count == 0 %}
+    <div class="danger-zone">
+        <h3>Danger Zone</h3>
+        <p>This action cannot be undone.</p>
+        <form action="{{ url_for('projects.cancel', id=project.id) }}" method="POST"
+              onsubmit="return confirm('Are you sure you want to cancel this project?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-danger">Cancel Project</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize Quill Editor
+const quill = new Quill('#descriptionEditor', {
+    theme: 'snow',
+    placeholder: 'Describe your project...',
+    modules: {
+        toolbar: {
+            container: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['blockquote', 'code-block'],
+                ['link', 'image', 'video'],
+                ['clean']
+            ],
+            handlers: {
+                image: imageHandler
+            }
+        }
+    }
+});
+
+// Load existing content
+const existingContent = `{{ project.description|safe|replace('\n', '\\n')|replace('\r', '') }}`;
+if (existingContent) {
+    quill.root.innerHTML = existingContent;
+}
+
+// Image handler for Quill
+function imageHandler() {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+        const file = input.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Image must be smaller than 5MB', 'error');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Upload failed');
+
+                const data = await response.json();
+                const range = quill.getSelection(true);
+                quill.insertEmbed(range.index, 'image', data.url);
+                quill.setSelection(range.index + 1);
+            } catch (error) {
+                // Fallback to base64
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const range = quill.getSelection(true);
+                    quill.insertEmbed(range.index, 'image', e.target.result);
+                    quill.setSelection(range.index + 1);
+                };
+                reader.readAsDataURL(file);
+            } finally {
+                hideLoading();
+            }
+        }
+    };
+}
+
+// Update hidden input on form submit
+document.querySelector('.project-form').addEventListener('submit', function(e) {
+    document.getElementById('description').value = quill.root.innerHTML;
+});
+
+// Delete image
+document.querySelectorAll('.remove-image').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const index = btn.dataset.index;
+        if (!confirm('Are you sure you want to delete this image?')) return;
+
+        try {
+            const response = await fetch(`/projects/{{ project.id }}/images/${index}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            });
+
+            if (response.ok) {
+                btn.closest('.image-preview').remove();
+                showToast('Image deleted', 'success');
+            } else {
+                showToast('Error deleting image', 'error');
+            }
+        } catch (error) {
+            showToast('Error deleting image', 'error');
+        }
+    });
+});
+</script>
+{% endblock %}
